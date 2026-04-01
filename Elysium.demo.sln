@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elysium", "Elysium\Elysium.csproj", "{6A4B59E4-51CD-44E1-9A2B-D143D7084C5E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D4950809-DC34-426B-A7F6-0E14CEE0151E}"
+	ProjectSection(SolutionItems) = preProject
+		compose.yaml = compose.yaml
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elysium.Core", "Elysium.Core\Elysium.Core.csproj", "{E75ED0AB-4CB9-4CA3-8A27-1FAE59C4DD48}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elysium.Server", "Elysium.Server\Elysium.Server.csproj", "{AD47174B-F32F-434E-AC3F-61F42BC3F726}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6A4B59E4-51CD-44E1-9A2B-D143D7084C5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A4B59E4-51CD-44E1-9A2B-D143D7084C5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A4B59E4-51CD-44E1-9A2B-D143D7084C5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A4B59E4-51CD-44E1-9A2B-D143D7084C5E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E75ED0AB-4CB9-4CA3-8A27-1FAE59C4DD48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E75ED0AB-4CB9-4CA3-8A27-1FAE59C4DD48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E75ED0AB-4CB9-4CA3-8A27-1FAE59C4DD48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E75ED0AB-4CB9-4CA3-8A27-1FAE59C4DD48}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD47174B-F32F-434E-AC3F-61F42BC3F726}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD47174B-F32F-434E-AC3F-61F42BC3F726}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD47174B-F32F-434E-AC3F-61F42BC3F726}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD47174B-F32F-434E-AC3F-61F42BC3F726}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
