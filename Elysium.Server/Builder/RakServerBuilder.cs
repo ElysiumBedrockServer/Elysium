@@ -1,8 +1,8 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using Elysium.Server.Server;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Elysium.Server.Builder;
 
@@ -27,7 +27,11 @@ public class RakNetBuilder
     
     private void ConfigureDefaultServices()
     {
-        Services.AddLogging();
+        Services.AddLogging(builder =>
+        {
+            builder.AddConsole();
+            builder.SetMinimumLevel(LogLevel.Debug);
+        });
     }
 
     private void AddConfiguration()
@@ -44,12 +48,12 @@ public class RakNetBuilder
         Configuration = builder.Build();
     }
 
-    public Raknet Build()
+    public ApplicationRaknet Build()
     {
         var builder = new ContainerBuilder();
         
         builder.Populate(Services);
         
-        return new Raknet(builder.Build(), Configuration, _args);
+        return new ApplicationRaknet(builder.Build(), Configuration, _args);
     }
 }

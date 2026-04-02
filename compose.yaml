@@ -1,7 +1,0 @@
-﻿services:
-  elysium:
-    image: elysium
-    build:
-      context: .
-      dockerfile: Elysium/Dockerfile
-

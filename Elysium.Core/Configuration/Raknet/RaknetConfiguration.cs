@@ -1,17 +1,17 @@
 using System.Text.Json.Serialization;
 
-namespace Elysium.Core.Configuration;
+namespace Elysium.Core.Configuration.Raknet;
 
 public class RaknetConfiguration
 {
-    [JsonPropertyName("address")] public string Address { get; set; } = "0.0.0.0";
-    [JsonPropertyName("portIPV4")] public int PortIpv4 { get; set; } = 19132;
-    [JsonPropertyName("portIPV6")] public int PortIpv6 { get; set; } = 19133;
-    [JsonPropertyName("protocol")] public int Protocol { get; set; } = 924;
-    [JsonPropertyName("version")] public int Version { get; set; } = 818;
-    [JsonPropertyName("message")] public string Message { get; set; } = "Elysium";
-    [JsonPropertyName("maxConnections")] public int MaxConnections { get; set; } = 40;
-    [JsonPropertyName("mtuMaxSize")] public int MtuMaxSize { get; set; } = 1492;
-    [JsonPropertyName("mtuMinSize")] public int MtuMinSize { get; set; } = 400;
-    [JsonPropertyName("validatePort")] public bool ValidatePort { get; set; }
+    public string Address { get; set; } = "0.0.0.0";
+    public int PortIpv4 { get; set; } = 19132;
+    public int PortIpv6 { get; set; } = 19133;
+    public int Protocol { get; set; } = 924;
+    public Version Version { get; set; } = Version.Parse("1.26.0");
+    public string Message { get; set; } = "Elysium";
+    public int MaxConnections { get; set; } = 40;
+    public int MtuMaxSize { get; set; } = 1492;
+    public int MtuMinSize { get; set; } = 400;
+    public bool ValidatePort { get; set; }
 }
