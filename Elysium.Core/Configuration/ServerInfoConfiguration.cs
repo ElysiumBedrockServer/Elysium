@@ -1,14 +1,12 @@
 using System.Text.Json.Serialization;
+using Elysium.Core.Configuration.Raknet;
 
 namespace Elysium.Core.Configuration;
 
 public class ServerInfoConfiguration
 {
-    [JsonPropertyName("edition")] public string Edition { get; set; } = "MCBE";
-    [JsonPropertyName("name")] public string Name { get; set; } = "MyServer";
-    [JsonPropertyName("motd")] public string Motd { get; set; } = "";
-    [JsonPropertyName("raknet")] public RaknetConfiguration Raknet { get; set; } = new();
+    public string Edition { get; set; } = "MCBE";
+    public string Name { get; set; } = "MyServer";
+    public string Motd { get; set; } = "";
+    public RaknetConfiguration Raknet { get; set; } = new();
 }
-
-
-

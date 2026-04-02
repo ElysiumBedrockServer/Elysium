@@ -1,18 +1,14 @@
 using System.Text.Json.Serialization;
 
-namespace Elysium.Core.Configuration;
+namespace Elysium.Core.Configuration.Network;
 
 public class NetworkConfiguration
 {
-    [JsonPropertyName("compressionMethod")]
     public int CompressionMethod { get; set; } = 0;
     
-    [JsonPropertyName("compressionThreshold")]
     public int CompressionThreshold { get; set; } = 256;
     
-    [JsonPropertyName("frameMonitoring")]
     public bool FrameMonitoring { get; set; } = true;
     
-    [JsonPropertyName("packetsPerFrame")]
     public int PacketsPerFrame { get; set; } = 64;
 }
