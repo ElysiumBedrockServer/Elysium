@@ -37,141 +37,151 @@ public class RaknetBinaryReader(byte[] buffer) {
     }
     
     public short ReadShortLittleEndian() {
+        EnsureAvailable(sizeof(short));
         
-        var value = BinaryPrimitives.ReadInt16LittleEndian(Buffer.AsSpan()[Position..(Position + sizeof(short))]);
+        var value = BinaryPrimitives.ReadInt16LittleEndian(Buffer.AsSpan(Position));
         Position += sizeof(short);
         
         return value;
     }
     
     public short ReadShortBigEndian() {
-
-        var value = BinaryPrimitives.ReadInt16BigEndian(Buffer.AsSpan()[Position..(Position + sizeof(short))]);
+        EnsureAvailable(sizeof(short));
+        
+        var value = BinaryPrimitives.ReadInt16BigEndian(Buffer.AsSpan(Position));
         Position += sizeof(short);
         
         return value;
     }
     
     public ushort ReadUnsignedShortLittleEndian() {
-
-        var value = BinaryPrimitives.ReadUInt16LittleEndian(Buffer.AsSpan()[Position..(Position + sizeof(short))]);
+        EnsureAvailable(sizeof(short));
+        
+        var value = BinaryPrimitives.ReadUInt16LittleEndian(Buffer.AsSpan(Position));
         Position += sizeof(short);
         
         return value;
     }
     
     public ushort ReadUnsignedShortBigEndian() {
-
-        var value = BinaryPrimitives.ReadUInt16BigEndian(Buffer.AsSpan()[Position..(Position + sizeof(short))]);
+        EnsureAvailable(sizeof(short));
+        
+        
+        var value = BinaryPrimitives.ReadUInt16BigEndian(Buffer.AsSpan(Position));
         Position += sizeof(short);
         
         return value;
     }
 
     public int ReadIntLittleEndian() {
+        EnsureAvailable(sizeof(int));
         
-        if (Position + 4 > Buffer.Length)
-            throw new ArgumentOutOfRangeException(nameof(Position), "Not enough data to read Int32.");
-        
-        var value = BinaryPrimitives.ReadInt32LittleEndian(Buffer.AsSpan()[Position..(Position + sizeof(int))]);
+        var value = BinaryPrimitives.ReadInt32LittleEndian(Buffer.AsSpan(Position));
         Position += sizeof(int);
         
         return value;
     }
 
     public int ReadIntBigEndian() {
-    
-        if (Position + sizeof(int) > Buffer.Length)
-            throw new ArgumentOutOfRangeException(nameof(Position), "Not enough data to read Int32.");
+        EnsureAvailable(sizeof(int));
 
-        var value = BinaryPrimitives.ReadInt32BigEndian(Buffer.AsSpan()[Position..(Position + sizeof(int))]);
+        var value = BinaryPrimitives.ReadInt32BigEndian(Buffer.AsSpan(Position));
         Position += sizeof(int);
     
         return value;
     }
     
     public uint ReadUnsignedIntLittleEndian() {
-
-        var value = BinaryPrimitives.ReadUInt32LittleEndian(Buffer.AsSpan()[Position..(Position + sizeof(int))]);
+        EnsureAvailable(sizeof(int));
+        
+        var value = BinaryPrimitives.ReadUInt32LittleEndian(Buffer.AsSpan(Position));
         Position += sizeof(int);
         
         return value;
     }
     
     public uint ReadUnsignedIntBigEndian() {
-
-        var value = BinaryPrimitives.ReadUInt32BigEndian(Buffer.AsSpan()[Position..(Position + sizeof(int))]);
+        EnsureAvailable(sizeof(int));
+        
+        var value = BinaryPrimitives.ReadUInt32BigEndian(Buffer.AsSpan(Position));
         Position += sizeof(int);
         
         return value;
     }
     
     public long ReadLongLittleEndian() {
-
-        var value = BinaryPrimitives.ReadInt64LittleEndian(Buffer.AsSpan()[Position..(Position + sizeof(long))]);
+        EnsureAvailable(sizeof(long));
+        
+        var value = BinaryPrimitives.ReadInt64LittleEndian(Buffer.AsSpan(Position));
         Position += sizeof(long);
         
         return value;
     }
     
     public long ReadLongBigEndian() {
-
-        var value = BinaryPrimitives.ReadInt64BigEndian(Buffer.AsSpan()[Position..(Position + sizeof(long))]);
+        EnsureAvailable(sizeof(long));
+        
+        var value = BinaryPrimitives.ReadInt64BigEndian(Buffer.AsSpan(Position));
         Position += sizeof(long);
         
         return value;
     }
     
     public ulong ReadUnsignedLongLittleEndian() {
-
-        var value = BinaryPrimitives.ReadUInt64LittleEndian(Buffer.AsSpan()[Position..(Position + sizeof(long))]);
+        EnsureAvailable(sizeof(long));
+        
+        var value = BinaryPrimitives.ReadUInt64LittleEndian(Buffer.AsSpan(Position));
         Position += sizeof(long);
         
         return value;
     }
     
     public ulong ReadUnsignedLongBigEndian() {
+        EnsureAvailable(sizeof(long));
         
-        var value = BinaryPrimitives.ReadUInt64BigEndian(Buffer.AsSpan()[Position..(Position + sizeof(long))]);
+        var value = BinaryPrimitives.ReadUInt64BigEndian(Buffer.AsSpan(Position));
         Position += sizeof(long);
         
         return value;
     }
     
     public float ReadFloatLittleEndian() {
+        EnsureAvailable(sizeof(float));
         
-        var value = BinaryPrimitives.ReadSingleLittleEndian(Buffer.AsSpan()[Position..(Position + sizeof(float))]);
+        var value = BinaryPrimitives.ReadSingleLittleEndian(Buffer.AsSpan(Position));
         Position += sizeof(float);
         
         return value;
     }
     
     public float ReadFloatBigEndian() {
+        EnsureAvailable(sizeof(float));
         
-        var value = BinaryPrimitives.ReadSingleBigEndian(Buffer.AsSpan()[Position..(Position + sizeof(float))]);
+        var value = BinaryPrimitives.ReadSingleBigEndian(Buffer.AsSpan(Position));
         Position += sizeof(float);
         
         return value;
     }
 
     public double ReadDoubleLittleEndian() {
+        EnsureAvailable(sizeof(double));
         
-        var value = BinaryPrimitives.ReadDoubleLittleEndian(Buffer.AsSpan()[Position..(Position + sizeof(double))]);
+        var value = BinaryPrimitives.ReadDoubleLittleEndian(Buffer.AsSpan(Position));
         Position += sizeof(double);
         
         return value;
     }
     
     public double ReadDoubleBigEndian() {
+        EnsureAvailable(sizeof(double));
         
-        var value = BinaryPrimitives.ReadDoubleBigEndian(Buffer.AsSpan()[Position..(Position + sizeof(double))]);
+        var value = BinaryPrimitives.ReadDoubleBigEndian(Buffer.AsSpan(Position));
         Position += sizeof(double);
         
         return value;
     }
     
     public int ReadTriadLittleEndian() {
-        
         if (Remaining < 3)
             throw new ArgumentOutOfRangeException(nameof(ReadTriadLittleEndian), "Not enough data to read a triad (3 bytes).");
 
@@ -192,10 +202,12 @@ public class RaknetBinaryReader(byte[] buffer) {
 
     public void ReadMagic() {
         
-        if (!Buffer[Position..(Position + MessageIdentifier.Magic.Length)].SequenceEqual(MessageIdentifier.Magic))
+        EnsureAvailable(RakNetInfos.Magic.Length);
+        
+        if (!Buffer.AsSpan(Position, RakNetInfos.Magic.Length).SequenceEqual(RakNetInfos.Magic))
             throw new InvalidOperationException("Invalid Magic");
 
-        Position += MessageIdentifier.Magic.Length;
+        Position += RakNetInfos.Magic.Length;
     }
     
     public IPEndPoint ReadIpEndPoint() {
@@ -220,12 +232,15 @@ public class RaknetBinaryReader(byte[] buffer) {
                 break;
             }
 
-            case 6: {
-                
+            case 6:
+            {
                 Position += sizeof(short);
                 port = ReadUnsignedShortBigEndian();
-                Position += sizeof(long);
+    
+                Position += sizeof(uint);
                 address = new IPAddress(ReadBytes(16));
+                Position += sizeof(uint);
+    
                 break;
             }
 
@@ -277,5 +292,11 @@ public class RaknetBinaryReader(byte[] buffer) {
         }
     
         throw new FormatException("VarInt did not terminate after 5 bytes!");
+    }
+    
+    private void EnsureAvailable(int size)
+    {
+        if (Remaining < size)
+            throw new ArgumentOutOfRangeException(nameof(size), $"Not enough data. Needed {size}, remaining {Remaining}");
     }
 }

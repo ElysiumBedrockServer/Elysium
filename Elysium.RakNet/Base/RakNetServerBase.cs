@@ -1,25 +1,22 @@
 using System.Net;
 using System.Net.Sockets;
-using Autofac;
+using Elysium.Core.Configuration;
 using Elysium.Core.Configuration.Raknet;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
-namespace Elysium.Server.Base;
+namespace Elysium.RakNet.Base;
 
-public abstract class RaknetServerBase
+public abstract class RakNetServerBase
 {
     protected IPEndPoint? ServerAddress { get; set; }
-    protected ILogger Logger { get; set; }
-    protected IContainer Services { get; private set; }
-    protected IConfiguration Configuration { get; private set; }
+    protected ServerInfoConfiguration Config { get; private set; }
+    protected ILogger<RakNetServer> Logger { get; set; }
 
-    public RaknetServerBase(IContainer services, IConfiguration configuration)
+    public RakNetServerBase(ILogger<RakNetServer> logger, IOptions<ServerInfoConfiguration> config)
     {
-        Services = services;
-        Configuration = configuration;
-        Logger = Services.Resolve<ILoggerFactory>()
-            .CreateLogger("Raknet Server");
+        Logger = logger;
+        Config = config.Value;
     }
 
     public void ApplyConfiguration(RaknetConfiguration config)
@@ -38,5 +35,5 @@ public abstract class RaknetServerBase
         return new IPEndPoint(value, port);
     }
     
-    public abstract Task RunAsync();
+    public abstract Task RunAsync(CancellationToken ctx);
 }

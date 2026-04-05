@@ -1,4 +1,4 @@
-namespace Elysium.Core.Interfaces;
+namespace Elysium.Core.Interfaces.Packet;
 
 public interface IOnlinePacket : IPacket
 {
