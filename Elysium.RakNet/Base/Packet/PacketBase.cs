@@ -1,8 +1,8 @@
 using System.Buffers;
 using Elysium.Core.Binary;
-using Elysium.Core.Interfaces;
+using Elysium.Core.Interfaces.Packet;
 
-namespace Elysium.Server.Base.Packet;
+namespace Elysium.RakNet.Base.Packet;
 
 public abstract class PacketBase : IPacket
 {

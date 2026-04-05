@@ -138,11 +138,11 @@ public class RaknetBinaryWriter(byte[] buffer) {
     }
 
     public void WriteMagic() {
-        if (Position + MessageIdentifier.Magic.Length > Buffer.Length)
+        if (Position + RakNetInfos.Magic.Length > Buffer.Length)
             throw new InvalidOperationException("Not enough space to write Magic.");
         
-        Array.Copy(MessageIdentifier.Magic, 0, Buffer, Position, MessageIdentifier.Magic.Length);
-        Position += MessageIdentifier.Magic.Length;
+        Array.Copy(RakNetInfos.Magic, 0, Buffer, Position, RakNetInfos.Magic.Length);
+        Position += RakNetInfos.Magic.Length;
     }
     
     public void WriteIpEndPoint(IPEndPoint? endPoint) {

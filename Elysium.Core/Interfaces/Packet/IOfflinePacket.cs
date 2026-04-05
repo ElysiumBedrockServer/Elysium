@@ -1,3 +1,3 @@
-namespace Elysium.Core.Interfaces;
+namespace Elysium.Core.Interfaces.Packet;
 
 public interface IOfflinePacket : IPacket;

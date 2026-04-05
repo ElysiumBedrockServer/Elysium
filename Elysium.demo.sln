@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elysium.Core", "Elysium.Cor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elysium.Server", "Elysium.Server\Elysium.Server.csproj", "{AD47174B-F32F-434E-AC3F-61F42BC3F726}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elysium.RakNet", "Elysium.RakNet\Elysium.RakNet.csproj", "{09AD303E-1FB7-43A3-A25D-D4AD0FDFDE4C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,5 +31,9 @@ Global
 		{AD47174B-F32F-434E-AC3F-61F42BC3F726}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD47174B-F32F-434E-AC3F-61F42BC3F726}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD47174B-F32F-434E-AC3F-61F42BC3F726}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09AD303E-1FB7-43A3-A25D-D4AD0FDFDE4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09AD303E-1FB7-43A3-A25D-D4AD0FDFDE4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09AD303E-1FB7-43A3-A25D-D4AD0FDFDE4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09AD303E-1FB7-43A3-A25D-D4AD0FDFDE4C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

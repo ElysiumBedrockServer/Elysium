@@ -1,12 +1,14 @@
 using Elysium.Core.Binary;
-using Elysium.Core.Protocol;
-using Elysium.Server.Base.Packet;
+using Elysium.Core.Interfaces.Packet;
+using Elysium.Core.Interfaces.Services.Parser;
+using Elysium.RakNet.Base.Packet;
+using Elysium.RakNet.Protocol;
 
-namespace Elysium.Server.Protocol.Online;
+namespace Elysium.RakNet.Packets.Online;
 
 public class ConnectedPing : OnlinePacket
 {
-    public override int PacketId => MessageIdentifier.OnlineConnectedPing;
+    public override int PacketId => OnlineIdentifiers.ConnectedPing;
     
     public long Time { get; private set; }
     
@@ -32,5 +34,15 @@ public class ConnectedPing : OnlinePacket
         return OnlinePacket.Create<ConnectedPing>(packet => {
             packet.Time = time;
         });
+    }
+    
+    public class ConnectedPingParser : IOnlinePacketParser
+    {
+        public int PacketId => OnlineIdentifiers.ConnectedPing;
+
+        public Task<IOnlinePacket> ParseAsync(ReadOnlyMemory<byte> data)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -1,34 +1,27 @@
 using System.Buffers;
 using System.Net;
 using System.Net.Sockets;
-using Autofac;
 using Elysium.Core.Configuration;
 using Elysium.Core.Configuration.Raknet;
-using Elysium.Server.Base;
-using Microsoft.Extensions.Configuration;
+using Elysium.RakNet.Base;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
-namespace Elysium.Server;
+namespace Elysium.RakNet;
 
-public class ApplicationRaknet : RaknetServerBase
+public class RakNetServer : RakNetServerBase
 {
-    private readonly string[] _args;
     private Socket Socket { get; set; } = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
     private CancellationTokenSource _cts = new();
-    private ServerInfoConfiguration? ServerConfig { get; set; }
     
-    
-    public ApplicationRaknet(IContainer container, IConfiguration configuration, string[] args) : base(container, configuration)
+    public RakNetServer(ILogger<RakNetServer> logger, IOptions<ServerInfoConfiguration> config) : base(logger, config)
     {
-        _args = args;
-        ServerConfig = Configuration
-            .GetSection("Server")
-            .Get<ServerInfoConfiguration>();
+       
     }
 
     public async Task InitializeAsync()
     {
-        ApplyConfiguration(ServerConfig?.Raknet ?? new RaknetConfiguration());
+        ApplyConfiguration(Config?.Raknet ?? new RaknetConfiguration());
         Logger.LogInformation(
             "Binding RakNet on {Address}:{Port} (IPv{Version})",
             ServerAddress?.Address,
@@ -37,18 +30,20 @@ public class ApplicationRaknet : RaknetServerBase
         );
     }
 
-    public override async Task RunAsync()
+    public override async Task RunAsync(CancellationToken ctx)
     {
-        Logger.LogDebug("Initializing RakNet server...");
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ctx, _cts.Token);
+        var token = linkedCts.Token;
+        
         await InitializeAsync();
-        Logger.LogInformation("Server started successfully");
+        Logger.LogDebug("Server started successfully");
         
         Socket.EnableBroadcast = true;
         Socket.Bind(ServerAddress!);
         
-        Logger.LogInformation("Starting Server - {Name}", ServerConfig.Name);
+        Logger.LogDebug("Starting Server - {Name}", Config.Name);
 
-        while (!_cts.Token.IsCancellationRequested)
+        while (!token.IsCancellationRequested)
         {
             var buffer = ArrayPool<byte>.Shared.Rent(8192);
 
@@ -61,7 +56,7 @@ public class ApplicationRaknet : RaknetServerBase
                     buffer,
                     SocketFlags.None,
                     remoteEndPoint,
-                    _cts.Token
+                    token
                 );
 
                 
@@ -84,9 +79,20 @@ public class ApplicationRaknet : RaknetServerBase
         }
     }
 
-    public Task StopAsync()
+    
+
+    public async Task StopAsync()
     {
-        Logger.LogInformation("Stopping Server - {Name}", ServerConfig.Name);
-        return Task.CompletedTask;
+        await _cts.CancelAsync();
+
+        try
+        {
+            Socket.Close();
+            Socket.Dispose();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Error while closing socket");
+        }
     }
 }

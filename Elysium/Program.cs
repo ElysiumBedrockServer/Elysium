@@ -1,14 +1,11 @@
-﻿
-using Elysium.Core.Configuration;
-using Elysium.Server.Builder;
-using Microsoft.Extensions.Configuration;
+﻿using Elysium.Server;
+using Elysium.Server.Extensions;
+using Microsoft.Extensions.Hosting;
 
-var builder = RakNetBuilder.CreateNetBuilder(args);
+var builder = RakNet.CreateApplicationBuilder(args);
 
-builder.Configuration.GetValue<ServerInfoConfiguration>("Server");
+builder.Services.AddConsoleInput();
 
 var app = builder.Build();
 
 await app.RunAsync();
-
-
