@@ -1,8 +1,8 @@
 using Elysium.Core.Configuration;
+using Elysium.Core.Interfaces.Transport;
 using Elysium.RakNet;
 using Elysium.RakNet.Hosts;
 using Elysium.Server.Extensions;
-using Elysium.Server.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -42,9 +42,8 @@ public static class RakNet
     public static IServiceCollection AddRakNetServer(this IServiceCollection services)
     {
         services.AddDefaultServices();
-        services.AddSingleton<RakNetServer>();
         services.AddHostedService<RakNetHostedService>();
-            
+        
         return services;
     } 
 }

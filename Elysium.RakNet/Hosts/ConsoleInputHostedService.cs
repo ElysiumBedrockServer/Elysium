@@ -1,10 +1,15 @@
+using System.Net.Sockets;
+using System.Text;
+using Elysium.RakNet.Base;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Elysium.RakNet.Hosts;
 
-public class ConsoleInputHostedService : BackgroundService
+public class ConsoleInputHostedService : RakNetHostBase
 {
+    private Task _executingTask;
+    
     private readonly IHostApplicationLifetime _lifetime;
     private readonly ILogger<ConsoleInputHostedService> _logger;
     private readonly CancellationTokenSource _cts = new();
@@ -14,28 +19,13 @@ public class ConsoleInputHostedService : BackgroundService
         _lifetime = app;
         _logger = logger;
     }
-
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken, _cts.Token);
-        var token = linkedCts.Token;
-        
-        while (!token.IsCancellationRequested)
-        {
-            var input = await Console.In.ReadLineAsync(cancellationToken: token);
-
-            if (string.IsNullOrWhiteSpace(input))
-                continue;
-
-            if(!token.IsCancellationRequested)
-                await HandleCommand(input);
-        }
-    }
     
     private async Task HandleCommand(string command)
     {
         var args = command.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
+        
+        using var client = new UdpClient();
+        
         switch (args[0].ToLower())
         {
             case "stop":
@@ -47,6 +37,24 @@ public class ConsoleInputHostedService : BackgroundService
             case "ping":
                 _logger.LogInformation("pong");
                 break;
+            
+            case "test":
+                var data = Encoding.UTF8.GetBytes("Hello RakNetServer!");
+
+                var serverIp = "127.0.0.1";
+                var serverPort = 19132;
+
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+
+                for (int i = 0; i < 1000; i++)
+                {
+                    await client.SendAsync(data, data.Length, serverIp, serverPort);
+                }
+
+                sw.Stop();
+                Console.WriteLine($"Sent 1000 messages in {sw.ElapsedMilliseconds} ms");
+                
+                break;
 
             case "say":
                 var message = string.Join(' ', args.Skip(1));
@@ -56,6 +64,30 @@ public class ConsoleInputHostedService : BackgroundService
             default:
                 _logger.LogInformation($"❓ Unknown command: {command}");
                 break;
+        }
+    }
+
+    
+
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        _cts.Cancel();
+        _cts.Dispose();
+        
+        return Task.CompletedTask;
+    }
+
+    public override async Task ExecuteAsync(CancellationToken cancellationToken)
+    {
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            var input = await Console.In.ReadLineAsync(cancellationToken: cancellationToken);
+
+            if (string.IsNullOrWhiteSpace(input))
+                continue;
+
+            if(!cancellationToken.IsCancellationRequested)
+                await HandleCommand(input);
         }
     }
 }

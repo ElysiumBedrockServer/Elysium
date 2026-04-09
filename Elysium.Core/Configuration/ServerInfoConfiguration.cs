@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Elysium.Core.Configuration.Elysium;
 using Elysium.Core.Configuration.Raknet;
 using Elysium.Core.Configuration.WorldDefaultSettings;
 
@@ -11,6 +12,6 @@ public class ServerInfoConfiguration
     public string Motd { get; set; } = "";
     
     public RaknetConfiguration Raknet { get; set; } = new();
-
+    public ElysiumConfiguration Elysium { get; set; } = new();
     public WorldDefaultSettingsConfiguration WorldDefaultSettings { get; set; } = new();
 }

@@ -1,0 +1,21 @@
+@startuml
+    Interface IRakNetSocket {
+
+    }
+
+
+    class BackGroundService {
+        +ExecuteAsync()
+
+        +StartAsync();
+        +StopAsync();
+    }
+
+    class RakNetHostedService {
+        
+    }
+
+    RakNetHostedService |... BackGroundService
+
+    IRakNetSocket <--- RakNetHostedService
+@enduml
