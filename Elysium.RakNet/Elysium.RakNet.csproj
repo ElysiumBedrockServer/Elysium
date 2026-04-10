@@ -15,7 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Transport\"/>
+        <Folder Include="Packets\Online\"/>
     </ItemGroup>
 
 </Project>

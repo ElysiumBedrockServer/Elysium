@@ -4,7 +4,8 @@ using Microsoft.Extensions.Hosting;
 
 var builder = RakNet.CreateApplicationBuilder(args);
 
-builder.Services.AddConsoleInput();
+builder.Services.AddRakNetPackets()
+    .AddConsoleInput();
 
 var app = builder.Build();
 
