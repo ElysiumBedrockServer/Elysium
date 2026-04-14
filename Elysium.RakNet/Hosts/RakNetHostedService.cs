@@ -1,28 +1,37 @@
-using Microsoft.Extensions.Hosting;
+using Elysium.RakNet.Base;
+using Elysium.RakNet.Sockets;
 using Microsoft.Extensions.Logging;
 
 namespace Elysium.RakNet.Hosts;
 
-public class RakNetHostedService : BackgroundService
+public class RakNetHostedService : RakNetHostBase
 {
-    private readonly RakNetServer _server;
+    private Task _executingTask;
+    
     private readonly ILogger<RakNetHostedService> _logger;
+    private readonly IRakNetSocket _socket;
 
-    public RakNetHostedService(RakNetServer server, ILogger<RakNetHostedService> logger)
+    public RakNetHostedService(ILogger<RakNetHostedService> logger, IRakNetSocket socket)
     {
-        _server = server;
         _logger = logger;
+        _socket = socket;
     }
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    public override Task ExecuteAsync(CancellationToken cancellationToken)
     {
         _logger.LogDebug("Initializing RakNet server...");
-        await _server.RunAsync(stoppingToken);
+
+        if (_socket.Start())
+            while (!_socket.Token?.IsCancellationRequested ?? false || !cancellationToken.IsCancellationRequested);
+        else
+            _logger.LogError("RakNet server failed to start.");
+
+        return Task.CompletedTask;
     }
 
-    public override async void Dispose()
+    public override Task StopAsync()
     {
-        await _server.StopAsync();
-        base.Dispose();
+        _socket.Stop();
+        return Task.CompletedTask;
     }
 }

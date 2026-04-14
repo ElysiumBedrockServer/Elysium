@@ -22,7 +22,6 @@
 
     <ItemGroup>
       <Folder Include="Handlers\" />
-      <Folder Include="Services\Transport\" />
     </ItemGroup>
 
 </Project>

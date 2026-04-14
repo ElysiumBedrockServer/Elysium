@@ -1,6 +1,9 @@
+using System.Net;
+using Microsoft.Extensions.Hosting;
+
 namespace Elysium.Core.Interfaces.Transport;
 
-public interface IRakNetTransport
+public interface IRakNetTransport : IHostedService, IDisposable
 {
-    Task SendAsync(ReadOnlyMemory<byte> data);
+    Task SendConversionAsync(EndPoint ip, ReadOnlyMemory<byte> data, bool onlineMode);
 }
