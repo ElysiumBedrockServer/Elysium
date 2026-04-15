@@ -1,4 +1,4 @@
-namespace Elysium.RakNet.Attributes;
+namespace Elysium.Core.Attributes;
 
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public class RakNetPacketAttribute : Attribute

@@ -1,4 +1,4 @@
-namespace Elysium.RakNet.Protocol;
+namespace Elysium.Core.Protocol;
 
 public static class Packet
 {

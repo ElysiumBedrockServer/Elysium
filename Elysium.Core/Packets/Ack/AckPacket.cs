@@ -1,9 +1,9 @@
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
-using Elysium.RakNet.Attributes;
-using Elysium.RakNet.Protocol;
+using Elysium.Core.Attributes;
+using Elysium.Core.Protocol;
 
-namespace Elysium.RakNet.Packets.Ack;
+namespace Elysium.Core.Packets.Ack;
 
 [RakNetPacket(Packet.Ack)]
 public class AckPacket : RakNetPacket
@@ -15,13 +15,13 @@ public class AckPacket : RakNetPacket
 
     public IReadOnlyCollection<AckRecord> Records => _records.AsReadOnly();
 
-    public List<AckRecord> _records { get; } = new();
+    private List<AckRecord> _records { get; } = new();
 
     public override void Deserialize(ReadOnlySpan<byte> buffer)
     {
         Offset = 1;
         Id = Packet.Ack;
-        
+
         var count = BinaryPrimitives.ReadUInt16BigEndian(buffer.Slice(Offset));
         Offset += 2;
 
@@ -47,8 +47,6 @@ public class AckPacket : RakNetPacket
 
     public override Span<byte> Serialize()
     {
-        Array.Clear(RawData, 0, RawData.Length);
-
         Offset = 0;
         RawData[Offset++] = Id;
 
@@ -59,23 +57,30 @@ public class AckPacket : RakNetPacket
 
         for (var i = 0; i < Records.Count; i++)
         {
-            var size = _records[i].Serialize(RawData.AsSpan(Offset));
+            var size = _records[i].Serialize(RawData.Slice(Offset));
             Offset += size;
             recordCount++;
         }
 
-        if (recordCount > 0)
-            BinaryPrimitives.WriteUInt16BigEndian(
-                RawData.AsSpan(countOffset),
-                (ushort)recordCount
-            );
+        BinaryPrimitives.WriteUInt16BigEndian(
+            RawData.Slice(countOffset),
+            (ushort)recordCount
+        );
+
 
         Size = Offset;
-        return RawData.AsSpan(0, Size);
+
+        RawData[Offset..].Clear();
+        return RawData.Slice(0, Size);
     }
 
     public void SetRecords(ReadOnlySpan<int> values)
     {
+        _records.Clear();
+
+        if (values.Length == 0)
+            return;
+
         var sorted = values.ToArray();
         Array.Sort(sorted);
 
@@ -102,7 +107,11 @@ public class AckPacket : RakNetPacket
             }
         }
 
-        Size = Records.Count;
+        _records.Add(new AckRecord
+        {
+            Low = start,
+            High = last
+        });
     }
 }
 

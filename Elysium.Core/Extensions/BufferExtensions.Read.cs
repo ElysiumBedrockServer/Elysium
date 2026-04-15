@@ -1,10 +1,20 @@
 using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
 
-namespace Elysium.RakNet.Extensions;
+namespace Elysium.Core.Extensions;
 
 public static partial class BufferExtensions
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ReadOnlySpan<byte> Slice(this ReadOnlySpan<byte> buffer, int length, ref int offset)
+    {
+        var start = offset;
+
+        offset += length;
+
+        return buffer.Slice(start, length);
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static sbyte ReadInt8(this ReadOnlySpan<byte> reader, ref int offset)
     {

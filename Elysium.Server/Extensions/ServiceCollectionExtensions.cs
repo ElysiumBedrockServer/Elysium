@@ -1,11 +1,13 @@
 using System.Reflection;
+using Elysium.Core.Attributes;
 using Elysium.Core.Configuration;
-using Elysium.RakNet.Attributes;
+using Elysium.Core.Packets;
+using Elysium.Core.Packets.Ack;
+using Elysium.Core.Packets.Connect;
 using Elysium.RakNet.Hosts;
-using Elysium.RakNet.Packets;
-using Elysium.RakNet.Packets.Ack;
 using Elysium.RakNet.Sockets;
 using Elysium.RakNet.Store;
+using Elysium.Server.Hosts;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Elysium.Server.Extensions;
@@ -87,6 +89,12 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<RakNetPacketMap>();
 
         services.AddPacket<AckPacket>();
+        services.AddPacket<NackPacket>();
+
+        services.AddPacket<ConnectedPing>();
+        services.AddPacket<ConnectedPong>();
+        services.AddPacket<ConnectionRequest>();
+
 
         return services;
     }

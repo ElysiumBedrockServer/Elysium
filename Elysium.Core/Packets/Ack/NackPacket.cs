@@ -1,9 +1,9 @@
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
-using Elysium.RakNet.Attributes;
-using Elysium.RakNet.Protocol;
+using Elysium.Core.Attributes;
+using Elysium.Core.Protocol;
 
-namespace Elysium.RakNet.Packets.Ack;
+namespace Elysium.Core.Packets.Ack;
 
 [RakNetPacket(Packet.Nack)]
 public class NackPacket : RakNetPacket
@@ -18,10 +18,10 @@ public class NackPacket : RakNetPacket
 
         var count = BinaryPrimitives.ReadUInt16BigEndian(buffer.Slice(Offset));
         Offset += 2;
-        
+
         _records.Clear();
         _records.Capacity = count;
-        
+
         var localOffSet = 0;
 
         for (var i = 0; i < count; i++)
@@ -32,7 +32,7 @@ public class NackPacket : RakNetPacket
                 buffer.Slice(Offset + localOffSet),
                 ref localOffSet
             );
-            
+
             _records.Add(record);
         }
 
@@ -41,29 +41,68 @@ public class NackPacket : RakNetPacket
 
     public override Span<byte> Serialize()
     {
-        Array.Clear(RawData, 0, RawData.Length);
         Offset = 0;
-
         RawData[Offset++] = Id;
 
         var countOffSet = Offset;
+        Offset += 2;
+        
         var recordCount = 0;
-
-        for (int i = 0; i < Records.Count; i++)
+        for (var i = 0; i < Records.Count; i++)
         {
-            var size = _records[i].Serialize(RawData.AsSpan(Offset));
+            var size = _records[i].Serialize(RawData.Slice(Offset));
             Offset += size;
             recordCount++;
         }
-        
-        if(recordCount > 0)
-            BinaryPrimitives.WriteUInt16BigEndian(
-                RawData.AsSpan(countOffSet),
-                (ushort)recordCount);
+
+        BinaryPrimitives.WriteUInt16BigEndian(
+            RawData.Slice(countOffSet),
+            (ushort)recordCount);
 
         Size = Offset;
         
-        return RawData.AsSpan(0, Size);
+        RawData[Offset..].Clear();
+        return RawData.Slice(0, Size);
+    }
+    
+    public void SetRecords(ReadOnlySpan<int> values)
+    {
+        _records.Clear();
+
+        if (values.Length == 0)
+            return;
+
+        var sorted = values.ToArray();
+        Array.Sort(sorted);
+
+        var start = sorted[0];
+        var last = start;
+
+        for (var i = 1; i < sorted.Length; i++)
+        {
+            var current = sorted[i];
+
+            if (current == last + 1)
+            {
+                last = current;
+            }
+            else
+            {
+                _records.Add(new NackRecord
+                {
+                    Low = start,
+                    High = last
+                });
+
+                start = last = current;
+            }
+        }
+
+        _records.Add(new NackRecord
+        {
+            Low = start,
+            High = last
+        });
     }
 }
 
@@ -77,12 +116,12 @@ public struct NackRecord
     {
         var isNotRange = buffer[0] != 0;
 
-        Low = RakNet.Helper.Helper.ReadUInt24LE(buffer.Slice(1));
+        Low = Helper.Helper.ReadUInt24LE(buffer.Slice(1));
         offset += 4;
 
         if (!isNotRange)
         {
-            High = RakNet.Helper.Helper.ReadUInt24LE(buffer.Slice(4));
+            High = Helper.Helper.ReadUInt24LE(buffer.Slice(4));
             offset += 3;
         }
         else
@@ -98,13 +137,13 @@ public struct NackRecord
         if (Low == High)
         {
             buffer[0] = 1;
-            RakNet.Helper.Helper.WriteUInt24LE(buffer.Slice(1), Low);
+            Helper.Helper.WriteUInt24LE(buffer.Slice(1), Low);
             return 4;
         }
 
         buffer[0] = 0;
-        RakNet.Helper.Helper.WriteUInt24LE(buffer.Slice(1), Low);
-        RakNet.Helper.Helper.WriteUInt24LE(buffer.Slice(4), High);
+        Helper.Helper.WriteUInt24LE(buffer.Slice(1), Low);
+        Helper.Helper.WriteUInt24LE(buffer.Slice(4), High);
         return 7;
     }
 }

@@ -1,15 +1,17 @@
 using System.Net;
-using Elysium.RakNet.Sockets;
+using Elysium.Core.Socket;
 
 namespace Elysium.RakNet.Store;
 
 public interface IRakNetConnectionStore
 {
+    RakNetPeer? this[int value] { get; }
     RakNetPeer? GetPeerById(int id);
+
     bool TryGetPeerById(int id, out RakNetPeer? peer);
-    void AddPeer(RakNetPeer? peer);
-    void RemovePeer(RakNetPeer? peer, bool enableWriteLock);
     bool TryGetPeer(IPEndPoint endPoint, out RakNetPeer peer);
     bool TryGetPeer(SocketAddress sAddr, out RakNetPeer peer);
-    RakNetPeer? this[int value] { get; }
+
+    internal void AddPeer(InternalRakNetPeer? peer);
+    internal void RemovePeer(InternalRakNetPeer? peer, bool enableWriteLock);
 }
