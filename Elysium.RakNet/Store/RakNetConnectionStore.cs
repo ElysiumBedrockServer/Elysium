@@ -1,5 +1,5 @@
 using System.Net;
-using Elysium.RakNet.Sockets;
+using Elysium.Core.Socket;
 using Microsoft.Extensions.Logging;
 
 namespace Elysium.RakNet.Store;
@@ -25,9 +25,9 @@ public class RakNetConnectionStore : IRakNetConnectionStore
     private int[]? _buckets;
     private int _count;
     private int _freeList = -1;
-    private volatile RakNetPeer? _headPeer;
+    private volatile InternalRakNetPeer? _headPeer;
     private int _lastIndex;
-    private RakNetPeer[] _peersArray = new RakNetPeer[32];
+    private InternalRakNetPeer[] _peersArray = new InternalRakNetPeer[32];
     private Slot[] _slots;
 
     public RakNetConnectionStore(ILogger<RakNetConnectionStore> logger)
@@ -37,7 +37,15 @@ public class RakNetConnectionStore : IRakNetConnectionStore
 
     public RakNetPeer? GetPeerById(int id)
     {
-        return id >= 0 && id < _peersArray.Length ? _peersArray[id] : null;
+        _peersLock.EnterReadLock();
+        try
+        {
+            return id >= 0 && id < _peersArray.Length ? _peersArray[id] : null;
+        }
+        finally
+        {
+            _peersLock.ExitReadLock();
+        }
     }
 
     public bool TryGetPeerById(int id, out RakNetPeer? peer)
@@ -46,7 +54,8 @@ public class RakNetConnectionStore : IRakNetConnectionStore
         return peer != null;
     }
 
-    public void AddPeer(RakNetPeer? peer)
+
+    public void AddPeer(InternalRakNetPeer? peer)
     {
         if (peer == null)
         {
@@ -75,13 +84,14 @@ public class RakNetConnectionStore : IRakNetConnectionStore
         _peersLock.ExitWriteLock();
     }
 
-    public void RemovePeer(RakNetPeer? peer, bool enableWriteLock)
+    public void RemovePeer(InternalRakNetPeer? peer, bool enableWriteLock)
     {
         if (peer == null)
             return;
 
         if (enableWriteLock)
             _peersLock.EnterWriteLock();
+
         if (!RemovePeerFromSet(peer))
         {
             if (enableWriteLock)
@@ -116,9 +126,22 @@ public class RakNetConnectionStore : IRakNetConnectionStore
     }
 
     public RakNetPeer? this[int value]
-        => GetPeerById(value);
+    {
+        get
+        {
+            try
+            {
+                _peersLock.EnterReadLock();
+                return GetPeerById(value);
+            }
+            finally
+            {
+                _peersLock.ExitReadLock();
+            }
+        }
+    }
 
-    private bool RemovePeerFromSet(RakNetPeer? peer)
+    private bool RemovePeerFromSet(InternalRakNetPeer? peer)
     {
         if (_buckets == null || peer == null)
             return false;
@@ -153,7 +176,7 @@ public class RakNetConnectionStore : IRakNetConnectionStore
         return false;
     }
 
-    private bool AddPeerToSet(RakNetPeer value)
+    private bool AddPeerToSet(InternalRakNetPeer value)
     {
         if (_buckets == null)
         {

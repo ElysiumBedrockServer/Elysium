@@ -3,8 +3,9 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Elysium.Core.Extensions;
 
-namespace Elysium.RakNet.Helper;
+namespace Elysium.Core.Helper;
 
 public static class Helper
 {
@@ -71,24 +72,32 @@ public static class Helper
         return (data ?? Encoding.UTF8).GetString(buffer.Slice(2, BinaryPrimitives.ReadUInt16BigEndian(buffer)));
     }
 
-    public static int ReadIpAddress(ReadOnlySpan<byte> buffer, out IPEndPoint address)
+    public static IPEndPoint ReadIpAddress(ReadOnlySpan<byte> buffer, ref int offset)
     {
-        switch (buffer[0])
+        var version = buffer[offset++];
+
+        IPAddress ip;
+        ushort port;
+
+        switch (version)
         {
             case 4:
-                address = new IPEndPoint(new IPAddress(buffer.Slice(1, 4)),
-                    BinaryPrimitives.ReadUInt16BigEndian(buffer.Slice(5)));
-                return 7;
-            case 6:
-                var port = BinaryPrimitives.ReadUInt16BigEndian(buffer.Slice(3));
+                ip = new IPAddress(buffer.Slice(4, ref offset));
 
-                var scopeId = BinaryPrimitives.ReadUInt32BigEndian(buffer.Slice(25));
-                Console.WriteLine(scopeId + "");
-                IPAddress ipAddress = new(buffer.Slice(9, 16), scopeId);
-                address = new IPEndPoint(ipAddress, port);
-                return 1 + 2 + 2 + 4 + 16 + 4;
+                return new IPEndPoint(ip, buffer.ReadUInt16BigEndian(ref offset));
+            case 6:
+                offset += 2;
+                port = buffer.ReadUInt16BigEndian(ref offset);
+                offset += 4;
+
+                var ipBytes = buffer.Slice(16, ref offset);
+
+                ip = new IPAddress(ipBytes,
+                    buffer.ReadUInt32BigEndian(ref offset));
+
+                return new IPEndPoint(ip, port);
             default:
-                throw new NotImplementedException("Usupported IP protocol: " + buffer[0]);
+                throw new NotImplementedException("Usupported IP protocol: " + version);
         }
     }
 
@@ -115,5 +124,21 @@ public static class Helper
         }
 
         return 7;
+    }
+
+    public static void WriteIpAdress(Span<byte> buffer, IPEndPoint address, ref int offset)
+    {
+        var ipVersion = (byte)(address.AddressFamily == AddressFamily.InterNetwork ? 4 : 6);
+
+        buffer[0] = ipVersion;
+        offset++;
+
+        switch (ipVersion)
+        {
+            case 4:
+                address.Address.GetAddressBytes().AsSpan().CopyTo(buffer.Slice(offset));
+                buffer.WriteBigEndian(ref offset, (ushort)address.Port);
+                break;
+        }
     }
 }

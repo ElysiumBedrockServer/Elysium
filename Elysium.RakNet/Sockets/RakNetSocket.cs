@@ -1,7 +1,8 @@
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using Elysium.Core.Configuration.Raknet;
-using Elysium.RakNet.Packets;
+using Elysium.Core.Packets;
 using Elysium.RakNet.Store;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -12,9 +13,9 @@ public interface IRakNetSocket
 {
     int V4Port { get; }
     int V6Port { get; }
-    
+
     CancellationToken? Token { get; }
-    
+
     bool Start();
 
     bool Stop();
@@ -22,19 +23,21 @@ public interface IRakNetSocket
 
 public class RakNetSocket : IRakNetSocket
 {
+    private readonly RaknetConfiguration? _config;
     private readonly IRakNetConnectionStore _connectionStore;
     private readonly ILogger<RakNetSocket> _logger;
 
     private readonly bool _v6Support = Socket.OSSupportsIPv6;
-    
-    private readonly RaknetConfiguration? _config;
 
     private CancellationTokenSource? _cts;
 
     private volatile bool _isRunning;
 
+    private int _lastPeerId;
+    private readonly ConcurrentQueue<int> _peerIds = new();
+
     private Thread? _receiveThread;
-    
+
     private Socket? _updSocketv4;
     private Socket? _updSocketv6;
 
@@ -49,12 +52,12 @@ public class RakNetSocket : IRakNetSocket
         V6Port = _config.PortIpv6;
     }
 
+    public int ReceivePollingTime { get; } = 50000;
+
 
     public CancellationToken? Token => _cts?.Token;
-    
-    public int ReceivePollingTime { get; } = 50000;
-    public int V4Port { get; private set; }
-    public int V6Port { get; private set; }
+    public int V4Port { get; }
+    public int V6Port { get; }
 
     public bool Start()
     {
@@ -105,10 +108,9 @@ public class RakNetSocket : IRakNetSocket
     {
         try
         {
-            
-            if(!_isRunning)
+            if (!_isRunning)
                 return false;
-            
+
             _cts?.Cancel();
             _updSocketv4?.Dispose();
             _updSocketv6?.Dispose();
@@ -117,15 +119,15 @@ public class RakNetSocket : IRakNetSocket
         {
             _isRunning = false;
         }
-        
+
         return true;
     }
-    
+
     private void ReceiveLogic()
     {
         EndPoint bufferEndPoint4 = new IPEndPoint(IPAddress.Any, 0);
         EndPoint bufferEndPoint6 = new IPEndPoint(IPAddress.IPv6Any, 0);
-        
+
         var selectReadList = new List<Socket>(2);
 
         var socketV4 = _updSocketv4!;
@@ -143,18 +145,20 @@ public class RakNetSocket : IRakNetSocket
                     selectReadList.Add(socketV6);
 
                 Socket.Select(selectReadList, null, null, ReceivePollingTime);
-                
+
                 foreach (var socket in selectReadList)
-                {
                     if (socket == socketV4)
                         ReceiveFrom(socketV4, ref bufferEndPoint4);
                     else if (socket == socketV6)
                         ReceiveFrom(socketV6, ref bufferEndPoint6);
-                }
             }
             catch (SocketException e)
             {
+                var result = ProcessError(e);
                 _logger.LogError(e, "SocketReceiveThread error: {Message}", e.Message);
+
+                if (!result)
+                    return;
             }
             catch (ObjectDisposedException e)
             {
@@ -169,7 +173,7 @@ public class RakNetSocket : IRakNetSocket
                 _logger.LogError(e, "SocketReceiveThread error: {Message}", e.Message);
             }
     }
-    
+
     private int ReceiveFrom(Socket socket, ref EndPoint endPoint)
     {
         var packet = new RakNetPacket();
@@ -179,11 +183,11 @@ public class RakNetSocket : IRakNetSocket
             : new IPEndPoint(IPAddress.IPv6Any, 0).Serialize();
 
         packet.Size = socket.ReceiveFrom(
-            new Span<byte>(packet.RawData, 0, RakNetPacket.MaxSizeMtu),
+            packet.RawData,
             SocketFlags.None,
             sender);
 
-        var peer = _connectionStore.TryGetPeer(sender, out var value)
+        endPoint = _connectionStore.TryGetPeer(sender, out var value)
             ? value
             : (IPEndPoint)endPoint.Create(sender);
 
@@ -205,14 +209,14 @@ public class RakNetSocket : IRakNetSocket
             if (endPoint.AddressFamily == AddressFamily.InterNetwork)
                 socket.EnableBroadcast = true;
 
-            string ipVersion = endPoint.AddressFamily switch
+            var ipVersion = endPoint.AddressFamily switch
             {
                 AddressFamily.InterNetwork => "IPv4",
                 AddressFamily.InterNetworkV6 => "IPv6",
                 _ => "Unknown"
             };
 
-            bool isDualMode = socket.AddressFamily == AddressFamily.InterNetworkV6 && socket.DualMode;
+            var isDualMode = socket.AddressFamily == AddressFamily.InterNetworkV6 && socket.DualMode;
 
             _logger.LogInformation(
                 "Server bound successfully | Endpoint: {EndPoint} | IP Version: {IPVersion} | DualMode: {DualMode} | Blocking: {Blocking} | RcvBuf: {ReceiveBuffer} | SndBuf: {SendBuffer}",
@@ -246,7 +250,7 @@ public class RakNetSocket : IRakNetSocket
             return false;
         }
     }
-    
+
     private bool ProcessError(SocketException ex)
     {
         switch (ex.SocketErrorCode)
@@ -268,6 +272,12 @@ public class RakNetSocket : IRakNetSocket
                 _logger.LogError($"[R]Error code: {(int)ex.SocketErrorCode} - {ex}");
                 break;
         }
+
         return false;
+    }
+
+    private int GetNextPeerId()
+    {
+        return _peerIds.TryDequeue(out var id) ? id : _lastPeerId++;
     }
 }

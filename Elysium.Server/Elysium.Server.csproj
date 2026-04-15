@@ -20,8 +20,4 @@
       <ProjectReference Include="..\Elysium.RakNet\Elysium.RakNet.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Handlers\" />
-    </ItemGroup>
-
 </Project>

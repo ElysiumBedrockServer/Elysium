@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using Elysium.Core.Configuration;
 
-namespace Elysium.RakNet.Packets;
+namespace Elysium.Core.Packets;
 
 public class RakNetPacketMap
 {
